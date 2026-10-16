@@ -44,7 +44,7 @@ def add_item(name, item_type, rarity, value):
     database = connect()
     cursor = database.cursor()
     cursor.execute(
-        "INSERT INTO items (name, type, rarity, value) VALUES (?,?,?,?)",
+        "INSERT INTO items (name, type, rarity, price) VALUES (?,?,?,?)",
         (name, item_type, rarity, value)
     )
     database.commit()

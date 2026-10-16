@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS "items" (
     "name" VARCHAR NOT NULL UNIQUE,
     "type" VARCHAR NOT NULL,
     "rarity" VARCHAR NOT NULL,
-    "value" INTEGER NOT NULL,
+    "price" INTEGER NOT NULL,
     PRIMARY KEY("id")
 )
 """)
