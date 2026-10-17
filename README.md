@@ -15,8 +15,30 @@ All files must be in the same folder.
 - Python 3.14
 - Tk 
 
+## How to install (Windows)
+ 
+1. Go to https://www.python.org/downloads/ and download the Python installer for Windows.
+2. Open the installer. **Important:** at the first screen turn on the checkbox **"Add python.exe to PATH"**, then click Install Now. Tk is already inside.
+3. Open the project folder in File Explorer, click on the address bar, type `cmd` and press Enter. A black window (Command Prompt) opens in the right folder.
+4. Make a virtual environment and turn it on:
+```
+python -m venv .venv
+.venv\Scripts\activate
+```
+ 
+ 
+If you use PowerShell and it says that running scripts is disabled, use Command Prompt (cmd) instead, or run this first:
+ 
+```
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+ 
+### Check that Tk works:
+```
+python -m tkinter
+```
 
-## How to install (for Mac/Linux (jo es nezinu ka to darit uz windows))
+## How to install (for Mac/Linux)
 
 You need Python with Tk. There are two ways how to install it.
 
