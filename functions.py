@@ -40,12 +40,12 @@ def add_profile(player_id, name):
 
 
 # ---------------------------------- PIEVIENOS PRIEKŠMETU ----------------------------------
-def add_item(name, item_type, rarity, value):
+def add_item(name, item_type, rarity, price):
     database = connect()
     cursor = database.cursor()
     cursor.execute(
         "INSERT INTO items (name, type, rarity, price) VALUES (?,?,?,?)",
-        (name, item_type, rarity, value)
+        (name, item_type, rarity, price)
     )
     database.commit()
     item_id = cursor.lastrowid
