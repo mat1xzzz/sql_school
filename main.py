@@ -171,19 +171,19 @@ VALUES (3, 3, 'iunoin', 5, 900)
 
 # Items
 cursor.execute("""
-INSERT OR IGNORE INTO items (id, name, type, rarity, value)
+INSERT OR IGNORE INTO items (id, name, type, rarity, price)
 VALUES (1, 'Rusty Cart', 'cart', 'common', 100)
 """)
 cursor.execute("""
-INSERT OR IGNORE INTO items (id, name, type, rarity, value)
+INSERT OR IGNORE INTO items (id, name, type, rarity, price)
 VALUES (2, 'Turbo Cart', 'wheels', 'rare', 500)
 """)
 cursor.execute("""
-INSERT OR IGNORE INTO items (id, name, type, rarity, value)
+INSERT OR IGNORE INTO items (id, name, type, rarity, price)
 VALUES (3, 'Neon Cart', 'skin', 'epic', 900)
 """)
 cursor.execute("""
-INSERT OR IGNORE INTO items (id, name, type, rarity, value)
+INSERT OR IGNORE INTO items (id, name, type, rarity, price)
 VALUES (4, 'Fire Cart', 'boost', 'common', 50)
 """)
 
