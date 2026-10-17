@@ -53,7 +53,7 @@ while True:
             item_type = input("Item type (cart / wheels / skin / boost): ")
             value = int(input("Price: "))
             rarity = input("Rarity (common / rare / epic / legendary): ")
-            item_id = add_item(name, item_type, value, rarity)
+            item_id = add_item(name, item_type, rarity, value)
             print("Item added, ID:", item_id)
 
         elif choice == "4":

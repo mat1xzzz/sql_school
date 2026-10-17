@@ -83,7 +83,7 @@ def get_players():
 def get_items():
     database = connect()
     cursor = database.cursor()
-    cursor.execute("SELECT id, name, type, rarity, value FROM items")
+    cursor.execute("SELECT id, name, type, rarity, price FROM items")
     items = cursor.fetchall()
     database.close()
     return items
