@@ -9,6 +9,7 @@ from functions import (
     get_items,
     get_inventory,
     add_game_session,
+    get_game_sessions,
     add_experience,
     get_leaderboard,
     delete_player
@@ -24,9 +25,10 @@ while True:
     print("6 - Show items")
     print("7 - Show inventory")
     print("8 - Add game session")
-    print("9 - Add experience")
-    print("10 - Show leaderboard")
-    print("11 - Delete player")
+    print("9 - Show game sessions")
+    print("10 - Add experience")
+    print("11 - Show leaderboard")
+    print("12 - Delete player")
     print("0 - Exit")
 
     choice = input("Choice: ")
@@ -95,6 +97,11 @@ while True:
             print("Game session added, ID:", session_id)
 
         elif choice == "9":
+            print("\nGame sessions:")
+            for row in get_game_sessions():
+                print(row)
+
+        elif choice == "10":
             profile_id = int(input("Profile ID: "))
             amount = int(input("Experience amount: "))
             if add_experience(profile_id, amount) > 0:
@@ -102,12 +109,12 @@ while True:
             else:
                 print("Profile with this ID was not found.")
 
-        elif choice == "10":
+        elif choice == "11":
             print("\nLeaderboard:")
             for row in get_leaderboard():
                 print(row)
 
-        elif choice == "11":
+        elif choice == "12":
             print("\nPlayers:")
             for player in get_players():
                 print(player)

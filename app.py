@@ -29,6 +29,7 @@ ACTIONS = {
     "Add to inventory": (f.add_to_inventory, [("Profile ID", int), ("Item ID", int), ("Quantity", int)], False),
     "Add game session": (f.add_game_session, [("Player ID", int), ("Login (YYYY-MM-DD HH:MM:SS)", str),
                                               ("Logout (YYYY-MM-DD HH:MM:SS)", str), ("Score", int)], False),
+    "Show game sessions": (f.get_game_sessions, [("Player ID", int)], False),
     "Add experience": (f.add_experience, [("Profile ID", int), ("Amount", int)], True),
     "Delete player": (f.delete_player, [("Player ID", int)], True),
 }

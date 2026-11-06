@@ -131,6 +131,35 @@ def add_game_session(player_id, login_time, logout_time, score_earned):
 
 
 
+# ---------------------------------- IZSAUKT SESSIJU ----------------------------------
+def get_game_sessions(player_id=None):
+    database = connect()
+    cursor = database.cursor()
+
+    if player_id:
+        cursor.execute("""
+                       SELECT id,
+                              login_time,
+                              logout_time,
+                              score_earned
+                       FROM game_sessions
+                       WHERE player_id = ?
+                       """, (player_id,))
+    else:
+        cursor.execute("""
+                       SELECT id,
+                              login_time,
+                              logout_time,
+                              score_earned
+                       FROM game_sessions
+                       """)
+
+    sessions = cursor.fetchall()
+    database.close()
+    return sessions
+
+
+
 # ---------------------------------- PIEVIENOT EXPERIENCE ----------------------------------
 def add_experience(profile_id, amount):
     # Adds experience to a profile and recalculates its level
