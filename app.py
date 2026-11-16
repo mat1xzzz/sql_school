@@ -18,6 +18,7 @@ TABLES = {
     "Items": (["ID", "Name", "Type", "Rarity", "Price"], f.get_items),
     "Inventory": (["ID", "Player", "Profile", "Item", "Rarity", "Qty"], f.get_inventory),
     "Leaderboard": (["Rank", "Player", "Score"], f.get_leaderboard),
+    "Show game sessions": (["ID", "Login time", "Logout time", "Score earned"], f.get_game_sessions),
 }
 
 # Action button configuration: (function, [(field_label, type)], returns_count)
@@ -29,7 +30,6 @@ ACTIONS = {
     "Add to inventory": (f.add_to_inventory, [("Profile ID", int), ("Item ID", int), ("Quantity", int)], False),
     "Add game session": (f.add_game_session, [("Player ID", int), ("Login (YYYY-MM-DD HH:MM:SS)", str),
                                               ("Logout (YYYY-MM-DD HH:MM:SS)", str), ("Score", int)], False),
-    "Show game sessions": (f.get_game_sessions, [("Player ID", int)], False),
     "Add experience": (f.add_experience, [("Profile ID", int), ("Amount", int)], True),
     "Delete player": (f.delete_player, [("Player ID", int)], True),
 }
@@ -242,8 +242,6 @@ def open_form(title, func, fields, returns_count):
 # Show any unexpected error in a clean window dialog
 root.report_callback_exception = lambda *err: messagebox.showerror("Error", f"{err[0].__name__}: {err[1]}")
 
-# Initial data load
 refresh()
 
-# Start application main loop
 root.mainloop()
