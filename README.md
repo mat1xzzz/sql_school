@@ -50,7 +50,7 @@ You need Python with Tk. There are two ways how to install it.
 3. Open Terminal, go to the project folder and make a virtual environment:
 
 ```
-cd /Users/jegors.vonogs/IT/school_sql
+cd /your_map
 python3 -m venv .venv
 source .venv/bin/activate
 ```
@@ -65,7 +65,7 @@ Then:
 
 ```
 brew install python-tk@3.14
-cd /Users/jegors.vonogs/IT/school_sql
+cd /your_map
 /opt/homebrew/bin/python3.14 -m venv .venv
 source .venv/bin/activate
 ```
@@ -95,7 +95,7 @@ python app.py
 Next time you only need these 3 lines:
 
 ```
-cd /Users/jegors.vonogs/IT/school_sql
+cd /your_map
 source .venv/bin/activate
 python app.py
 ```
