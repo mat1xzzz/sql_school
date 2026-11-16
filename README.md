@@ -4,7 +4,7 @@ This is a program with a window where you can see and change the database of a g
 
 ## Files
 
-- `create_db.py` - makes the database and adds some test data (run it one time)
+- `main.py` - makes the database and adds some test data (run it one time)
 - `functions.py` - all functions for the database
 - `app.py` - the program with the window (run this one)
 - `for_game.db` - the database (it appears after you run the first file)
@@ -83,7 +83,7 @@ A small window should open. If it opens, everything is ok.
 First, make the database (only one time):
 
 ```
-python create_db.py
+python main.py
 ```
 
 Then start the program:
