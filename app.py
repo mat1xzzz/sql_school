@@ -34,22 +34,22 @@ ACTIONS = {
     "Delete player": (f.delete_player, [("Player ID", int)], True),
 }
 
-# Initialize main window
+# Initialize main window (увеличили высоту до 720, чтобы всё гарантированно помещалось)
 root = tk.Tk()
 root.title("SHOPPING CART DRIFT")
-root.geometry("1024x640")
-root.minsize(840, 520)
+root.geometry("1024x720")
+root.minsize(840, 560)
 
 # ---------------------------------------------------------
-# Theme & Color Palette Constants
+# Theme & Color Palette Constants (Monochrome Dark Grey)
 # ---------------------------------------------------------
-BG_COLOR = "#f8fafc"  # Slate 50 (Soft neutral background)
-SURFACE_COLOR = "#ffffff"  # White
-PRIMARY_COLOR = "#4f46e5"  # Indigo 600
-PRIMARY_HOVER = "#4338ca"  # Indigo 700
-TEXT_COLOR = "#0f172a"  # Slate 900
-MUTED_TEXT = "#64748b"  # Slate 500
-BORDER_COLOR = "#cbd5e1"  # Slate 300
+BG_COLOR = "#404040"       # Darkest grey (Background)
+SURFACE_COLOR = "#5E5D5D"  # Slightly lighter grey (Cards, tables, notebook)
+PRIMARY_COLOR = "#52525b"  # Mid-grey for primary actions/buttons
+PRIMARY_HOVER = "#71717a"  # Lighter mid-grey for button hover
+TEXT_COLOR = "#f4f4f5"     # Near-white for clear readability
+MUTED_TEXT = "#a1a1aa"     # Medium grey for secondary text
+BORDER_COLOR = "#3f3f46"   # Subtle border grey
 
 root.configure(bg=BG_COLOR)
 
@@ -60,20 +60,20 @@ style.configure(".", background=BG_COLOR, foreground=TEXT_COLOR, font=("Segoe UI
 style.configure("TFrame", background=BG_COLOR)
 style.configure("Header.TLabel", font=("Segoe UI", 18, "bold"), foreground=TEXT_COLOR, background=BG_COLOR)
 
-# Standard Button Styling (Clean, flat rectangular look)
+# Standard Button Styling
 style.configure("TButton",
-                background="#ffffff",
+                background="#27272a",
                 foreground=TEXT_COLOR,
                 borderwidth=1,
                 focusthickness=2,
-                focuscolor=PRIMARY_COLOR,
+                focuscolor=PRIMARY_HOVER,
                 padding=(12, 8),
                 font=("Segoe UI", 9, "bold"))
 style.map("TButton",
-          background=[('active', '#f1f5f9'), ('pressed', '#e2e8f0')],
+          background=[('active', '#3f3f46'), ('pressed', '#18181b')],
           bordercolor=[('active', BORDER_COLOR)])
 
-# Primary Accent Button Styling (Indigo background for primary actions)
+# Primary Accent Button Styling
 style.configure("Primary.TButton",
                 background=PRIMARY_COLOR,
                 foreground="#ffffff",
@@ -81,19 +81,19 @@ style.configure("Primary.TButton",
                 padding=(12, 8),
                 font=("Segoe UI", 9, "bold"))
 style.map("Primary.TButton",
-          background=[('active', PRIMARY_HOVER), ('pressed', '#3730a3')],
+          background=[('active', PRIMARY_HOVER), ('pressed', '#3f3f46')],
           foreground=[('active', '#ffffff')])
 
 # Notebook & Tabs Styling
 style.configure("TNotebook", background=BG_COLOR, borderwidth=0)
 style.configure("TNotebook.Tab",
-                background="#e2e8f0",
+                background="#18181b",
                 foreground=MUTED_TEXT,
                 padding=[16, 10],
                 font=("Segoe UI", 10, "bold"))
 style.map("TNotebook.Tab",
-          background=[('selected', SURFACE_COLOR), ('active', '#cbd5e1')],
-          foreground=[('selected', PRIMARY_COLOR), ('active', TEXT_COLOR)])
+          background=[('selected', SURFACE_COLOR), ('active', '#27272a')],
+          foreground=[('selected', TEXT_COLOR), ('active', TEXT_COLOR)])
 
 # Treeview / Tables Styling
 style.configure("Treeview",
@@ -101,14 +101,14 @@ style.configure("Treeview",
                 foreground=TEXT_COLOR,
                 fieldbackground=SURFACE_COLOR,
                 borderwidth=0,
-                rowheight=34,
+                rowheight=32,
                 font=("Segoe UI", 10))
 style.configure("Treeview.Heading",
-                background="#f1f5f9",
+                background="#27272a",
                 foreground=TEXT_COLOR,
                 font=("Segoe UI", 10, "bold"),
                 relief="flat")
-style.map("Treeview.Heading", background=[('active', '#e2e8f0')])
+style.map("Treeview.Heading", background=[('active', '#3f3f46')])
 
 # ---------------------------------------------------------
 # Main UI Layout
@@ -121,22 +121,9 @@ header_frame = ttk.Frame(main_frame)
 header_frame.pack(fill="x", pady=(0, 16))
 ttk.Label(header_frame, text="Shopping Cart Drift", style="Header.TLabel").pack(side="left")
 
-# Action Toolbar
-bar = ttk.Frame(main_frame)
-bar.pack(fill="x", pady=(0, 16))
-
-for text, (func, fields, count) in ACTIONS.items():
-    # Highlight 'Add' actions as primary buttons
-    is_primary = "Add" in text
-    btn_style = "Primary.TButton" if is_primary else "TButton"
-
-    btn = ttk.Button(bar, text=text, style=btn_style,
-                     command=lambda t=text, a=(func, fields, count): open_form(t, *a))
-    btn.pack(side="left", padx=(0, 8), pady=4)
-
 # Notebook Container with Tables & Scrollbars
 notebook_container = ttk.Frame(main_frame)
-notebook_container.pack(fill="both", expand=True)
+notebook_container.pack(fill="both", expand=True, pady=(0, 16))
 
 notebook = ttk.Notebook(notebook_container)
 notebook.pack(fill="both", expand=True)
@@ -149,7 +136,8 @@ for name, (headers, _) in TABLES.items():
     tree_scroll = ttk.Scrollbar(tab_frame)
     tree_scroll.pack(side="right", fill="y")
 
-    tree = ttk.Treeview(tab_frame, columns=headers, show="headings", yscrollcommand=tree_scroll.set, height=16)
+    # Уменьшили height с 16 до 10, чтобы таблица не занимала слишком много места по вертикали
+    tree = ttk.Treeview(tab_frame, columns=headers, show="headings", yscrollcommand=tree_scroll.set, height=10)
     tree_scroll.config(command=tree.yview)
 
     for h in headers:
@@ -158,6 +146,18 @@ for name, (headers, _) in TABLES.items():
 
     tree.pack(fill="both", expand=True)
     trees[name] = tree
+
+# Action Toolbar (Under the tables)
+bar = ttk.Frame(main_frame)
+bar.pack(fill="x")
+
+for text, (func, fields, count) in ACTIONS.items():
+    is_primary = "Add" in text
+    btn_style = "Primary.TButton" if is_primary else "TButton"
+
+    btn = ttk.Button(bar, text=text, style=btn_style,
+                     command=lambda t=text, a=(func, fields, count): open_form(t, *a))
+    btn.pack(side="left", padx=(0, 8), pady=4)
 
 
 def refresh():
@@ -239,7 +239,6 @@ def open_form(title, func, fields, returns_count):
     win.lift()
 
 
-# Show any unexpected error in a clean window dialog
 root.report_callback_exception = lambda *err: messagebox.showerror("Error", f"{err[0].__name__}: {err[1]}")
 
 refresh()
