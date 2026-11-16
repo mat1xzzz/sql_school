@@ -1,3 +1,4 @@
+<img width="895" height="731" alt="Screenshot 2026-11-16 103826_edited" src="https://github.com/user-attachments/assets/d17b7e8e-fd04-4529-8759-92f4859db05a" />
 # Shopping Cart Drift
 This is a program with a window where you can see and change the database of a game about drifting with shopping carts.
 
