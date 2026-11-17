@@ -102,9 +102,9 @@ python app.py
 
 ## How it works
 
-At the top there are tabs: Players, Profiles, Items, Inventory, Leaderboard. Click a tab to see the table.
+At the top there is one dropdown with all tables: Players, Profiles, Items, Inventory, Game sessions, Achievements, Player achievements, Quests, Player quests, Leaderboard. Pick a table to see it. Columns share the whole width and long text wraps onto several lines.
 
-At the bottom there are buttons. Click a button, fill in the fields and press OK. Press Cancel (or Esc) if you changed your mind. The tables update by themselves.
+At the bottom there are buttons. Click a button, fill in the fields and press Submit. Press Cancel (or Esc) if you changed your mind. The tables update by themselves.
 
 ## Buttons
 
@@ -116,6 +116,10 @@ At the bottom there are buttons. Click a button, fill in the fields and press OK
 | Add to inventory | profile ID, item ID, quantity |
 | Add game session | player ID, login time, logout time, score |
 | Add experience | profile ID, amount |
+| Add achievement | title, description, reward points |
+| Add quest | quest name, description, min level required |
+| Unlock achievement | player ID, achievement ID (date is set by itself) |
+| Assign quest | profile ID, quest ID, status (in_progress / completed), progress |
 | Delete player | player ID |
 
 Time must look like this: `2026-10-17 18:00:00`
