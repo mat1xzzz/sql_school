@@ -12,7 +12,15 @@ from functions import (
     get_game_sessions,
     add_experience,
     get_leaderboard,
-    delete_player
+    delete_player,
+    add_achievement,
+    get_achievements,
+    unlock_achievement,
+    get_player_achievements,
+    add_quest,
+    get_quests,
+    assign_quest,
+    get_player_quests
 )
 
 while True:
@@ -29,6 +37,14 @@ while True:
     print("10 - Add experience")
     print("11 - Show leaderboard")
     print("12 - Delete player")
+    print("13 - Add achievement")
+    print("14 - Show achievements")
+    print("15 - Unlock achievement")
+    print("16 - Show player achievements")
+    print("17 - Add quest")
+    print("18 - Show quests")
+    print("19 - Assign quest")
+    print("20 - Show player quests")
     print("0 - Exit")
 
     choice = input("Choice: ")
@@ -124,6 +140,66 @@ while True:
                 print("Player deleted.")
             else:
                 print("Player with this ID was not found.")
+
+        elif choice == "13":
+            title = input("Achievement title: ")
+            description = input("Description: ")
+            reward_points = int(input("Reward points: "))
+            achievement_id = add_achievement(title, description, reward_points)
+            print("Achievement added, ID:", achievement_id)
+
+        elif choice == "14":
+            print("\nAchievements:")
+            for row in get_achievements():
+                print(row)
+
+        elif choice == "15":
+            print("\nPlayers:")
+            for player in get_players():
+                print(player)
+
+            print("\nAchievements:")
+            for row in get_achievements():
+                print(row)
+
+            player_id = int(input("Player ID: "))
+            achievement_id = int(input("Achievement ID: "))
+            unlocked_id = unlock_achievement(player_id, achievement_id)
+            print("Achievement unlocked, ID:", unlocked_id)
+
+        elif choice == "16":
+            print("\nPlayer achievements:")
+            for row in get_player_achievements():
+                print(row)
+
+        elif choice == "17":
+            name = input("Quest name: ")
+            description = input("Description: ")
+            min_level = int(input("Min level required: "))
+            quest_id = add_quest(name, description, min_level)
+            print("Quest added, ID:", quest_id)
+
+        elif choice == "18":
+            print("\nQuests:")
+            for row in get_quests():
+                print(row)
+
+        elif choice == "19":
+            print("\nQuests:")
+            for row in get_quests():
+                print(row)
+
+            profile_id = int(input("Profile ID: "))
+            quest_id = int(input("Quest ID: "))
+            status = input("Status (in_progress / completed): ")
+            progress = int(input("Progress: "))
+            player_quest_id = assign_quest(profile_id, quest_id, status, progress)
+            print("Quest assigned, ID:", player_quest_id)
+
+        elif choice == "20":
+            print("\nPlayer quests:")
+            for row in get_player_quests():
+                print(row)
 
         elif choice == "0":
             print("Goodbye!")
