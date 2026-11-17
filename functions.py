@@ -219,3 +219,132 @@ def delete_player(player_id):
     deleted = cursor.rowcount  # 1 if the player existed, 0 if not
     database.close()
     return deleted
+
+
+
+# ---------------------------------- PIEVIENOT SASNIEGUMU ----------------------------------
+def add_achievement(title, description, reward_points):
+    database = connect()
+    cursor = database.cursor()
+    cursor.execute(
+        "INSERT INTO achievements (title, description, reward_points) VALUES (?,?,?)",
+        (title, description, reward_points)
+    )
+    database.commit()
+    achievement_id = cursor.lastrowid
+    database.close()
+    return achievement_id
+
+
+
+# ---------------------------------- ATSLĒGT SASNIEGUMU SPĒLĒTĀJAM ----------------------------------
+def unlock_achievement(player_id, achievement_id):
+    database = connect()
+    cursor = database.cursor()
+    unlocked_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    cursor.execute(
+        "INSERT INTO player_achievements (player_id, achievement_id, unlocked_at) VALUES (?,?,?)",
+        (player_id, achievement_id, unlocked_at)
+    )
+    database.commit()
+    unlocked_id = cursor.lastrowid
+    database.close()
+    return unlocked_id
+
+
+
+# ---------------------------------- PIEVIENOT KVESTU ----------------------------------
+def add_quest(name, description, min_level_required):
+    database = connect()
+    cursor = database.cursor()
+    cursor.execute(
+        "INSERT INTO quests (name, description, min_level_required) VALUES (?,?,?)",
+        (name, description, min_level_required)
+    )
+    database.commit()
+    quest_id = cursor.lastrowid
+    database.close()
+    return quest_id
+
+
+
+# ---------------------------------- PIEVIENOT KVESTU PROFILAM ----------------------------------
+def assign_quest(profile_id, quest_id, status, progress_count):
+    database = connect()
+    cursor = database.cursor()
+    cursor.execute(
+        "INSERT INTO player_quests (profile_id, quest_id, status, progress_count) VALUES (?,?,?,?)",
+        (profile_id, quest_id, status, progress_count)
+    )
+    database.commit()
+    player_quest_id = cursor.lastrowid
+    database.close()
+    return player_quest_id
+
+
+
+# ---------------------------------- IZSAUKT SASNIEGUMU SARAKSTU ----------------------------------
+def get_achievements():
+    database = connect()
+    cursor = database.cursor()
+    cursor.execute("SELECT id, title, description, reward_points FROM achievements")
+    achievements = cursor.fetchall()
+    database.close()
+    return achievements
+
+
+
+# ---------------------------------- IZSAUKT SPĒLĒTĀJA SASNIEGUMU SARAKSTU ----------------------------------
+def get_player_achievements():
+    database = connect()
+    cursor = database.cursor()
+    cursor.execute("""
+                   SELECT player_achievements.id,
+                          player.nickname,
+                          achievements.title,
+                          player_achievements.unlocked_at
+                   FROM player_achievements
+                            JOIN player
+                                 ON player_achievements.player_id = player.id
+                            JOIN achievements
+                                 ON player_achievements.achievement_id = achievements.id
+                   ORDER BY player_achievements.id
+                   """)
+    player_achievements = cursor.fetchall()
+    database.close()
+    return player_achievements
+
+
+
+# ---------------------------------- IZSAUKT KVESTU SARAKSTU ----------------------------------
+def get_quests():
+    database = connect()
+    cursor = database.cursor()
+    cursor.execute("SELECT id, name, description, min_level_required FROM quests")
+    quests = cursor.fetchall()
+    database.close()
+    return quests
+
+
+
+# ---------------------------------- IZSAUKT SPĒLĒTĀJA KVESTU SARAKSTU ----------------------------------
+def get_player_quests():
+    database = connect()
+    cursor = database.cursor()
+    cursor.execute("""
+                   SELECT player_quests.id,
+                          profile_preset.name,
+                          quests.name,
+                          player_quests.status,
+                          player_quests.progress_count,
+                          quests.min_level_required
+                   FROM player_quests
+                            JOIN profile_preset
+                                 ON player_quests.profile_id = profile_preset.id
+                            JOIN quests
+                                 ON player_quests.quest_id = quests.id
+                   ORDER BY player_quests.id
+                   """)
+    player_quests = cursor.fetchall()
+    database.close()
+    return player_quests
