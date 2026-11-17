@@ -19,6 +19,10 @@ TABLES = {
     "Inventory": (["ID", "Player", "Profile", "Item", "Rarity", "Qty"], f.get_inventory),
     "Leaderboard": (["Rank", "Player", "Score"], f.get_leaderboard),
     "Show game sessions": (["ID", "Login time", "Logout time", "Score earned"], f.get_game_sessions),
+    "Show achievements": (["ID", "Title", "Description", "Reward"], f.get_achievements),
+    "Show player achievements": (["ID", "Player", "Achievement", "Unlocked"], f.get_player_achievements),
+    "Show quests": (["ID", "Name", "Description", "Min level"], f.get_quests),
+    "Show player quests": (["ID", "Profile", "Quest", "Status", "Progress", "Min level"], f.get_player_quests),
 }
 
 # Action button configuration: (function, [(field_label, type)], returns_count)
@@ -31,6 +35,11 @@ ACTIONS = {
     "Add game session": (f.add_game_session, [("Player ID", int), ("Login (YYYY-MM-DD HH:MM:SS)", str),
                                               ("Logout (YYYY-MM-DD HH:MM:SS)", str), ("Score", int)], False),
     "Add experience": (f.add_experience, [("Profile ID", int), ("Amount", int)], True),
+    "Add achievement": (f.add_achievement, [("Title", str), ("Description", str), ("Reward points", int)], False),
+    "Add quest": (f.add_quest, [("Quest name", str), ("Description", str), ("Min level required", int)], False),
+    "Unlock achievement": (f.unlock_achievement, [("Player ID", int), ("Achievement ID", int)], False),
+    "Assign quest": (f.assign_quest, [("Profile ID", int), ("Quest ID", int),
+                                      ("Status (in_progress/completed)", str), ("Progress", int)], False),
     "Delete player": (f.delete_player, [("Player ID", int)], True),
 }
 
@@ -54,13 +63,17 @@ INPUT_BG = "#202225"       # Dark input field background
 
 # Colorful accent per action button: text -> (style key, base color, hover color)
 ACCENTS = {
-    "Add player":       ("blue",   "#3b82f6", "#2563eb"),
-    "Add profile":      ("purple", "#8b5cf6", "#7c3aed"),
-    "Add item":         ("amber",  "#f59e0b", "#d97706"),
-    "Add to inventory": ("green",  "#10b981", "#059669"),
-    "Add game session": ("cyan",   "#06b6d4", "#0891b2"),
-    "Add experience":   ("orange", "#f97316", "#ea580c"),
-    "Delete player":    ("red",    "#ef4444", "#dc2626"),
+    "Add player":         ("blue",   "#3b82f6", "#2563eb"),
+    "Add profile":        ("purple", "#8b5cf6", "#7c3aed"),
+    "Add item":           ("amber",  "#f59e0b", "#d97706"),
+    "Add to inventory":   ("green",  "#10b981", "#059669"),
+    "Add game session":   ("cyan",   "#06b6d4", "#0891b2"),
+    "Add experience":     ("orange", "#f97316", "#ea580c"),
+    "Add achievement":    ("pink",   "#ec4899", "#db2777"),
+    "Add quest":          ("lime",   "#84cc16", "#65a30d"),
+    "Unlock achievement": ("indigo", "#6366f1", "#4f46e5"),
+    "Assign quest":       ("teal",   "#14b8a6", "#0d9488"),
+    "Delete player":      ("red",    "#ef4444", "#dc2626"),
 }
 
 root.configure(bg=BG_COLOR)
@@ -125,26 +138,22 @@ style.map("TNotebook.Tab",
           background=[('selected', PRIMARY_COLOR), ('active', '#4b5058')],
           foreground=[('selected', '#ffffff'), ('active', TEXT_COLOR)])
 
-# Treeview / Tables Styling
-style.configure("Treeview",
-                background=SURFACE_COLOR,
-                foreground=TEXT_COLOR,
-                fieldbackground=SURFACE_COLOR,
-                borderwidth=0,
-                relief="flat",
-                rowheight=32,
-                font=("Segoe UI", 10))
-style.map("Treeview",
-          background=[('selected', PRIMARY_COLOR)],
-          foreground=[('selected', '#ffffff')])
-style.configure("Treeview.Heading",
+# Wrapping Table Styling (header + cells are labels, so long text can wrap)
+style.configure("Table.TFrame", background=SURFACE_COLOR)
+style.configure("TableHeading.TLabel",
                 background="#202225",
                 foreground=TEXT_COLOR,
                 borderwidth=0,
                 relief="flat",
-                padding=(8, 8),
-                font=("Segoe UI", 10, "bold"))
-style.map("Treeview.Heading", background=[('active', '#2f3237')])
+                font=("Segoe UI", 10, "bold"),
+                padding=(8, 8))
+style.configure("TableCell.TLabel",
+                background=SURFACE_COLOR,
+                foreground=TEXT_COLOR,
+                borderwidth=0,
+                relief="flat",
+                font=("Segoe UI", 10),
+                padding=(8, 6))
 
 # Scrollbar Styling (thin, blends with surface)
 style.configure("Vertical.TScrollbar",
@@ -180,6 +189,91 @@ style.map("TCombobox",
           bordercolor=[('focus', PRIMARY_COLOR), ('!focus', BORDER_COLOR)],
           fieldbackground=[('readonly', INPUT_BG)],
           foreground=[('readonly', TEXT_COLOR)])
+
+# ---------------------------------------------------------
+# Wrapping Table Widget (заменил Treeview: колонки делят всю
+# ширину таблицы, а длинный текст переносится на новые строки)
+# ---------------------------------------------------------
+class WrapTable(ttk.Frame):
+    PAD = 16      # горизонтальные отступы внутри каждой ячейки
+    MIN_COL = 70  # колонка не может быть уже этого размера
+
+    def __init__(self, master):
+        super().__init__(master, style="Table.TFrame")
+        self.headers = []
+        self.rows = []
+
+        scroll = ttk.Scrollbar(self, orient="vertical", style="Vertical.TScrollbar")
+        scroll.pack(side="right", fill="y")
+
+        self.canvas = tk.Canvas(self, bg=SURFACE_COLOR, highlightthickness=0, bd=0)
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.canvas.configure(yscrollcommand=scroll.set)
+        scroll.configure(command=self.canvas.yview)
+
+        self.inner = ttk.Frame(self.canvas, style="Table.TFrame")
+        self._win = self.canvas.create_window((0, 0), window=self.inner, anchor="nw")
+        self.inner.bind("<Configure>",
+                        lambda event: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.canvas.bind("<Configure>", self._on_resize)
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+    # ---------- публичный API (как у Treeview: колонки + строки) ----------
+    def set_columns(self, headers):
+        self.headers = list(headers)
+        for child in self.inner.winfo_children():
+            child.destroy()
+        for c, h in enumerate(self.headers):
+            head = ttk.Label(self.inner, text=h, style="TableHeading.TLabel", anchor="w")
+            head.grid(row=0, column=c, sticky="nsew")
+        self._layout()
+
+    def set_rows(self, rows):
+        self.rows = [list(row) for row in rows]
+        # удаляем старые ячейки (всё, что ниже строки заголовка)
+        for child in self.inner.winfo_children():
+            if child.grid_info() and child.grid_info()["row"] > 0:
+                child.destroy()
+        for r, row in enumerate(self.rows, start=1):
+            for c in range(len(self.headers)):
+                text = str(row[c]) if c < len(row) else ""
+                cell = ttk.Label(self.inner, text=text, style="TableCell.TLabel", anchor="nw")
+                cell.grid(row=r, column=c, sticky="nsew")
+        self._layout()
+
+    # ---------- размеры колонок ----------
+    def _on_resize(self, event=None):
+        self.canvas.itemconfigure(self._win, width=event.width if event else self.canvas.winfo_width())
+        self._layout()
+
+    def _layout(self):
+        if not self.headers:
+            return
+        avail = self.canvas.winfo_width()
+        if avail < 100:  # окно ещё не отрисовалось
+            return
+        # вес колонки = длина самой длинной записи в ней (не больше 40 знаков)
+        weights = []
+        for c in range(len(self.headers)):
+            lens = [len(self.headers[c])]
+            lens += [len(str(row[c])) for row in self.rows if c < len(row)]
+            weights.append(max(1, min(max(lens), 40)))
+        widths = [max(self.MIN_COL, int(avail * w / sum(weights))) for w in weights]
+        if sum(widths) > avail:  # минимальные ширины не влезли — сжимаем пропорционально
+            widths = [max(40, int(w * avail / sum(widths))) for w in widths]
+        for c in range(len(self.headers)):
+            self.inner.columnconfigure(c, minsize=widths[c])
+            wraplength = max(20, widths[c] - self.PAD)
+            for cell in self.inner.grid_slaves(column=c):
+                cell.configure(wraplength=wraplength)
+
+    def _on_mousewheel(self, event):
+        if abs(event.delta) >= 120:  # Windows
+            steps = -event.delta // 120
+        else:                        # macOS
+            steps = -event.delta
+        if steps:
+            self.canvas.yview_scroll(steps, "units")
 
 # ---------------------------------------------------------
 # Main UI Layout
@@ -255,22 +349,13 @@ table_selector.pack(side="left", ipady=2)
 table_container = ttk.Frame(main_frame)
 table_container.pack(fill="both", expand=True, pady=(0, 16))
 
-tree_scroll = ttk.Scrollbar(table_container)
-tree_scroll.pack(side="right", fill="y")
-
-# Уменьшили height с 16 до 10, чтобы таблица не занимала слишком много места по вертикали
-tree = ttk.Treeview(table_container, show="headings", yscrollcommand=tree_scroll.set, height=14)
-tree_scroll.config(command=tree.yview)
-tree.pack(fill="both", expand=True)
+table = WrapTable(table_container)
+table.pack(fill="both", expand=True)
 
 
 def set_table_columns():
     """Applies the column headers of the currently selected table."""
-    headers = TABLES[table_var.get()][0]
-    tree["columns"] = headers
-    for h in headers:
-        tree.heading(h, text=h)
-        tree.column(h, width=150, anchor="w")
+    table.set_columns(TABLES[table_var.get()][0])
 
 
 def on_table_selected(event=None):
@@ -285,9 +370,7 @@ set_table_columns()
 def refresh():
     """Refreshes the current table view from its backend database getter."""
     getter = TABLES[table_var.get()][1]
-    tree.delete(*tree.get_children())
-    for row in getter():
-        tree.insert("", "end", values=row)
+    table.set_rows(getter())
 
 
 def open_form(title, func, fields, returns_count):
@@ -365,4 +448,5 @@ root.report_callback_exception = lambda *err: messagebox.showerror("Error", f"{e
 
 refresh()
 
-root.mainloop()
+if __name__ == "__main__":
+    root.mainloop()
