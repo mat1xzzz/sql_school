@@ -41,15 +41,27 @@ root.geometry("1024x720")
 root.minsize(840, 560)
 
 # ---------------------------------------------------------
-# Theme & Color Palette Constants (Monochrome Dark Grey)
+# Theme & Color Palette Constants (Modern Grey + Colorful Accents)
 # ---------------------------------------------------------
-BG_COLOR = "#404040"       # Darkest grey (Background)
-SURFACE_COLOR = "#5E5D5D"  # Slightly lighter grey (Cards, tables, notebook)
-PRIMARY_COLOR = "#52525b"  # Mid-grey for primary actions/buttons
-PRIMARY_HOVER = "#71717a"  # Lighter mid-grey for button hover
+BG_COLOR = "#313338"       # Modern neutral grey (Background)
+SURFACE_COLOR = "#3b3f45"  # Lighter grey (Cards, tables, notebook)
+PRIMARY_COLOR = "#3b82f6"  # Vivid blue for primary actions
+PRIMARY_HOVER = "#60a5fa"  # Lighter blue for hover
 TEXT_COLOR = "#f4f4f5"     # Near-white for clear readability
-MUTED_TEXT = "#a1a1aa"     # Medium grey for secondary text
-BORDER_COLOR = "#3f3f46"   # Subtle border grey
+MUTED_TEXT = "#9ca3af"     # Medium grey for secondary text
+BORDER_COLOR = "#4b5058"   # Subtle border grey
+INPUT_BG = "#202225"       # Dark input field background
+
+# Colorful accent per action button: text -> (style key, base color, hover color)
+ACCENTS = {
+    "Add player":       ("blue",   "#3b82f6", "#2563eb"),
+    "Add profile":      ("purple", "#8b5cf6", "#7c3aed"),
+    "Add item":         ("amber",  "#f59e0b", "#d97706"),
+    "Add to inventory": ("green",  "#10b981", "#059669"),
+    "Add game session": ("cyan",   "#06b6d4", "#0891b2"),
+    "Add experience":   ("orange", "#f97316", "#ea580c"),
+    "Delete player":    ("red",    "#ef4444", "#dc2626"),
+}
 
 root.configure(bg=BG_COLOR)
 
@@ -58,42 +70,60 @@ style.theme_use('clam')
 
 style.configure(".", background=BG_COLOR, foreground=TEXT_COLOR, font=("Segoe UI", 10))
 style.configure("TFrame", background=BG_COLOR)
-style.configure("Header.TLabel", font=("Segoe UI", 18, "bold"), foreground=TEXT_COLOR, background=BG_COLOR)
+style.configure("Header.TLabel", font=("Georgia", 26, "bold italic"), foreground=TEXT_COLOR, background=BG_COLOR,
+                anchor="center")
+style.configure("Subtitle.TLabel", font=("Segoe UI", 10), foreground=MUTED_TEXT, background=BG_COLOR,
+                anchor="center")
 
-# Standard Button Styling
+# Standard Button Styling (neutral grey, modern flat look)
 style.configure("TButton",
-                background="#27272a",
+                background="#4b5058",
                 foreground=TEXT_COLOR,
-                borderwidth=1,
-                focusthickness=2,
-                focuscolor=PRIMARY_HOVER,
-                padding=(12, 8),
+                borderwidth=0,
+                focusthickness=0,
+                padding=(14, 9),
                 font=("Segoe UI", 9, "bold"))
 style.map("TButton",
-          background=[('active', '#3f3f46'), ('pressed', '#18181b')],
-          bordercolor=[('active', BORDER_COLOR)])
+          background=[('active', '#5a606a'), ('pressed', '#202225')],
+          foreground=[('disabled', MUTED_TEXT)])
 
-# Primary Accent Button Styling
+# Colorful Accent Button Styling — one vivid color per action
+for _text, (_key, _base, _hover) in ACCENTS.items():
+    _style_name = f"Accent.{_key}.TButton"
+    style.configure(_style_name,
+                    background=_base,
+                    foreground="#ffffff",
+                    borderwidth=0,
+                    focusthickness=0,
+                    padding=(8, 8),
+                    font=("Segoe UI", 10, "bold"))
+    style.map(_style_name,
+              background=[('active', _hover), ('pressed', '#202225')],
+              foreground=[('active', '#ffffff'), ('pressed', '#ffffff'), ('disabled', '#ffffff')])
+
+# Primary Accent Button Styling (blue — used for modal Submit)
 style.configure("Primary.TButton",
                 background=PRIMARY_COLOR,
                 foreground="#ffffff",
                 borderwidth=0,
-                padding=(12, 8),
+                focusthickness=0,
+                padding=(14, 9),
                 font=("Segoe UI", 9, "bold"))
 style.map("Primary.TButton",
-          background=[('active', PRIMARY_HOVER), ('pressed', '#3f3f46')],
+          background=[('active', PRIMARY_HOVER), ('pressed', '#202225')],
           foreground=[('active', '#ffffff')])
 
-# Notebook & Tabs Styling
-style.configure("TNotebook", background=BG_COLOR, borderwidth=0)
+# Notebook & Tabs Styling (modern flat tabs with blue selection)
+style.configure("TNotebook", background=BG_COLOR, borderwidth=0, tabmargins=(0, 0, 0, 8))
 style.configure("TNotebook.Tab",
-                background="#18181b",
+                background=SURFACE_COLOR,
                 foreground=MUTED_TEXT,
-                padding=[16, 10],
+                padding=[18, 10],
+                borderwidth=0,
                 font=("Segoe UI", 10, "bold"))
 style.map("TNotebook.Tab",
-          background=[('selected', SURFACE_COLOR), ('active', '#27272a')],
-          foreground=[('selected', TEXT_COLOR), ('active', TEXT_COLOR)])
+          background=[('selected', PRIMARY_COLOR), ('active', '#4b5058')],
+          foreground=[('selected', '#ffffff'), ('active', TEXT_COLOR)])
 
 # Treeview / Tables Styling
 style.configure("Treeview",
@@ -101,14 +131,55 @@ style.configure("Treeview",
                 foreground=TEXT_COLOR,
                 fieldbackground=SURFACE_COLOR,
                 borderwidth=0,
+                relief="flat",
                 rowheight=32,
                 font=("Segoe UI", 10))
+style.map("Treeview",
+          background=[('selected', PRIMARY_COLOR)],
+          foreground=[('selected', '#ffffff')])
 style.configure("Treeview.Heading",
-                background="#27272a",
+                background="#202225",
                 foreground=TEXT_COLOR,
-                font=("Segoe UI", 10, "bold"),
-                relief="flat")
-style.map("Treeview.Heading", background=[('active', '#3f3f46')])
+                borderwidth=0,
+                relief="flat",
+                padding=(8, 8),
+                font=("Segoe UI", 10, "bold"))
+style.map("Treeview.Heading", background=[('active', '#2f3237')])
+
+# Scrollbar Styling (thin, blends with surface)
+style.configure("Vertical.TScrollbar",
+                background="#4b5058",
+                troughcolor=BG_COLOR,
+                borderwidth=0,
+                arrowsize=12)
+style.map("Vertical.TScrollbar", background=[('active', '#5a606a')])
+
+# Entry Field Styling (dark fields with subtle borders)
+style.configure("TEntry",
+                fieldbackground=INPUT_BG,
+                foreground=TEXT_COLOR,
+                borderwidth=1,
+                insertcolor=TEXT_COLOR,
+                padding=(6, 6))
+style.map("TEntry",
+          bordercolor=[('focus', PRIMARY_COLOR), ('!focus', BORDER_COLOR)])
+
+# Combobox Styling (table selector dropdown)
+root.option_add("*TCombobox*Listbox.background", SURFACE_COLOR)
+root.option_add("*TCombobox*Listbox.foreground", TEXT_COLOR)
+root.option_add("*TCombobox*Listbox.selectBackground", PRIMARY_COLOR)
+root.option_add("*TCombobox*Listbox.selectForeground", "#ffffff")
+style.configure("TCombobox",
+                fieldbackground=INPUT_BG,
+                background="#4b5058",
+                foreground=TEXT_COLOR,
+                borderwidth=1,
+                arrowcolor=TEXT_COLOR,
+                padding=(8, 6))
+style.map("TCombobox",
+          bordercolor=[('focus', PRIMARY_COLOR), ('!focus', BORDER_COLOR)],
+          fieldbackground=[('readonly', INPUT_BG)],
+          foreground=[('readonly', TEXT_COLOR)])
 
 # ---------------------------------------------------------
 # Main UI Layout
@@ -116,56 +187,107 @@ style.map("Treeview.Heading", background=[('active', '#3f3f46')])
 main_frame = ttk.Frame(root, padding=24)
 main_frame.pack(fill="both", expand=True)
 
-# App Title Header
+# App Title Header (centered logo + subtitle)
 header_frame = ttk.Frame(main_frame)
 header_frame.pack(fill="x", pady=(0, 16))
-ttk.Label(header_frame, text="Shopping Cart Drift", style="Header.TLabel").pack(side="left")
+ttk.Label(header_frame, text="S H O P P I N G   C A R T   D R I F T",
+          style="Header.TLabel").pack(fill="x")
+ttk.Label(header_frame, text="SQL Database on SQLite  ·  Shopping Cart Drift Game Manager",
+          style="Subtitle.TLabel").pack(fill="x", pady=(4, 0))
 
-# Notebook Container with Tables & Scrollbars
-notebook_container = ttk.Frame(main_frame)
-notebook_container.pack(fill="both", expand=True, pady=(0, 16))
+# ---------------------------------------------------------
+# Action Toolbar (created & packed BEFORE the table view so it
+# always keeps its space when the window is resized —
+# the table shrinks instead of hiding the buttons)
+# ---------------------------------------------------------
+bar = ttk.Frame(main_frame)
+bar.pack(side="bottom", fill="x", pady=(12, 0))
 
-notebook = ttk.Notebook(notebook_container)
-notebook.pack(fill="both", expand=True)
+action_buttons = []
+for text, (func, fields, count) in ACTIONS.items():
+    style_key, _, _ = ACCENTS[text]
+    btn = ttk.Button(bar, text=text, style=f"Accent.{style_key}.TButton",
+                     command=lambda t=text, a=(func, fields, count): open_form(t, *a))
+    action_buttons.append(btn)
 
-trees = {}
-for name, (headers, _) in TABLES.items():
-    tab_frame = ttk.Frame(notebook, padding=12)
-    notebook.add(tab_frame, text=name)
+BTN_GAP = 4  # matches padx between buttons
 
-    tree_scroll = ttk.Scrollbar(tab_frame)
-    tree_scroll.pack(side="right", fill="y")
 
-    # Уменьшили height с 16 до 10, чтобы таблица не занимала слишком много места по вертикали
-    tree = ttk.Treeview(tab_frame, columns=headers, show="headings", yscrollcommand=tree_scroll.set, height=10)
-    tree_scroll.config(command=tree.yview)
+def relayout_buttons(event=None):
+    """Flows the action buttons onto multiple rows when the window is too narrow."""
+    width = bar.winfo_width()
+    if width < 50:
+        return
+    rows, current, x = [], [], 0
+    for btn in action_buttons:
+        w = btn.winfo_reqwidth()
+        need = w if not current else w + BTN_GAP
+        if current and x + need > width:
+            rows.append(current)
+            current, x = [btn], w
+        else:
+            current.append(btn)
+            x += need
+    if current:
+        rows.append(current)
+    for r, row in enumerate(rows):
+        for c, btn in enumerate(row):
+            btn.grid(row=r, column=c, padx=(0, BTN_GAP), pady=4, sticky="ew")
+    for col in range(max(len(r) for r in rows)):
+        bar.columnconfigure(col, weight=1)
 
+
+bar.bind("<Configure>", relayout_buttons)
+
+# ---------------------------------------------------------
+# Table Selector (single dropdown) & Table View
+# ---------------------------------------------------------
+table_bar = ttk.Frame(main_frame)
+table_bar.pack(fill="x", pady=(0, 12))
+
+table_var = tk.StringVar(value=list(TABLES.keys())[0])
+table_selector = ttk.Combobox(table_bar, textvariable=table_var,
+                              values=list(TABLES.keys()),
+                              state="readonly", width=26,
+                              font=("Segoe UI", 11, "bold"))
+table_selector.pack(side="left", ipady=2)
+
+table_container = ttk.Frame(main_frame)
+table_container.pack(fill="both", expand=True, pady=(0, 16))
+
+tree_scroll = ttk.Scrollbar(table_container)
+tree_scroll.pack(side="right", fill="y")
+
+# Уменьшили height с 16 до 10, чтобы таблица не занимала слишком много места по вертикали
+tree = ttk.Treeview(table_container, show="headings", yscrollcommand=tree_scroll.set, height=14)
+tree_scroll.config(command=tree.yview)
+tree.pack(fill="both", expand=True)
+
+
+def set_table_columns():
+    """Applies the column headers of the currently selected table."""
+    headers = TABLES[table_var.get()][0]
+    tree["columns"] = headers
     for h in headers:
         tree.heading(h, text=h)
         tree.column(h, width=150, anchor="w")
 
-    tree.pack(fill="both", expand=True)
-    trees[name] = tree
 
-# Action Toolbar (Under the tables)
-bar = ttk.Frame(main_frame)
-bar.pack(fill="x")
+def on_table_selected(event=None):
+    set_table_columns()
+    refresh()
 
-for text, (func, fields, count) in ACTIONS.items():
-    is_primary = "Add" in text
-    btn_style = "Primary.TButton" if is_primary else "TButton"
 
-    btn = ttk.Button(bar, text=text, style=btn_style,
-                     command=lambda t=text, a=(func, fields, count): open_form(t, *a))
-    btn.pack(side="left", padx=(0, 8), pady=4)
+table_selector.bind("<<ComboboxSelected>>", on_table_selected)
+set_table_columns()
 
 
 def refresh():
-    """Refreshes all table views from backend database getters."""
-    for name, (_, getter) in TABLES.items():
-        trees[name].delete(*trees[name].get_children())
-        for row in getter():
-            trees[name].insert("", "end", values=row)
+    """Refreshes the current table view from its backend database getter."""
+    getter = TABLES[table_var.get()][1]
+    tree.delete(*tree.get_children())
+    for row in getter():
+        tree.insert("", "end", values=row)
 
 
 def open_form(title, func, fields, returns_count):
