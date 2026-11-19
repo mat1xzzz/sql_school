@@ -43,7 +43,7 @@ ACTIONS = {
     "Delete player": (f.delete_player, [("Player ID", int)], True),
 }
 
-# Initialize main window (увеличили высоту до 720, чтобы всё гарантированно помещалось)
+# Initialize main window
 root = tk.Tk()
 root.title("SHOPPING CART DRIFT")
 root.geometry("1024x720")
@@ -191,12 +191,11 @@ style.map("TCombobox",
           foreground=[('readonly', TEXT_COLOR)])
 
 # ---------------------------------------------------------
-# Wrapping Table Widget (заменил Treeview: колонки делят всю
-# ширину таблицы, а длинный текст переносится на новые строки)
+# Wrapping Table Widget (заменил Treeview
 # ---------------------------------------------------------
 class WrapTable(ttk.Frame):
-    PAD = 16      # горизонтальные отступы внутри каждой ячейки
-    MIN_COL = 70  # колонка не может быть уже этого размера
+    PAD = 16
+    MIN_COL = 70
 
     def __init__(self, master):
         super().__init__(master, style="Table.TFrame")
@@ -218,7 +217,7 @@ class WrapTable(ttk.Frame):
         self.canvas.bind("<Configure>", self._on_resize)
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
-    # ---------- публичный API (как у Treeview: колонки + строки) ----------
+    # ---------- публичный API  ----------
     def set_columns(self, headers):
         self.headers = list(headers)
         for child in self.inner.winfo_children():
@@ -230,7 +229,7 @@ class WrapTable(ttk.Frame):
 
     def set_rows(self, rows):
         self.rows = [list(row) for row in rows]
-        # удаляем старые ячейки (всё, что ниже строки заголовка)
+        # удаляем старые ячейки
         for child in self.inner.winfo_children():
             if child.grid_info() and child.grid_info()["row"] > 0:
                 child.destroy()
@@ -250,9 +249,8 @@ class WrapTable(ttk.Frame):
         if not self.headers:
             return
         avail = self.canvas.winfo_width()
-        if avail < 100:  # окно ещё не отрисовалось
+        if avail < 100:
             return
-        # вес колонки = длина самой длинной записи в ней (не больше 40 знаков)
         weights = []
         for c in range(len(self.headers)):
             lens = [len(self.headers[c])]
