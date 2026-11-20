@@ -217,7 +217,7 @@ class WrapTable(ttk.Frame):
         self.canvas.bind("<Configure>", self._on_resize)
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
-    # ---------- публичный API  ----------
+    # --------------------
     def set_columns(self, headers):
         self.headers = list(headers)
         for child in self.inner.winfo_children():
@@ -229,7 +229,6 @@ class WrapTable(ttk.Frame):
 
     def set_rows(self, rows):
         self.rows = [list(row) for row in rows]
-        # удаляем старые ячейки
         for child in self.inner.winfo_children():
             if child.grid_info() and child.grid_info()["row"] > 0:
                 child.destroy()
