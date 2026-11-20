@@ -191,7 +191,7 @@ style.map("TCombobox",
           foreground=[('readonly', TEXT_COLOR)])
 
 # ---------------------------------------------------------
-# Wrapping Table Widget (заменил Treeview
+# Wrapping Table Widget 
 # ---------------------------------------------------------
 class WrapTable(ttk.Frame):
     PAD = 16
@@ -240,7 +240,7 @@ class WrapTable(ttk.Frame):
                 cell.grid(row=r, column=c, sticky="nsew")
         self._layout()
 
-    # ---------- размеры колонок ----------
+    # ---------- button size ----------
     def _on_resize(self, event=None):
         self.canvas.itemconfigure(self._win, width=event.width if event else self.canvas.winfo_width())
         self._layout()
